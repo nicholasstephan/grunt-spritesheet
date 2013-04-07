@@ -143,8 +143,8 @@ module.exports = function(grunt) {
 								width: file.width / 2,
 								height: file.height / 2,
 								sprite: dblUrl,
-								spriteWidth: features.width,
-								spriteHeight: features.height
+								spriteWidth: features.width / 2,
+								spriteHeight: features.height / 2
 							});
 						});
 
