@@ -153,8 +153,6 @@ module.exports = function(grunt) {
 			grunt.file.mkdir(sheetDir);
 			fs.writeFileSync(sheet, css, 'utf8');
 
-			grunt.log.writeln(JSON.stringify(coords));
-
 			grunt.log.writeln(sheet, 'created.')
 			done();
 		});
