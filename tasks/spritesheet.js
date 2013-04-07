@@ -2,62 +2,163 @@
  * grunt-spritesheet
  * https://github.com/nicholasstephan/grunt-spritesheet
  *
+ * Mostly just a fork of Ensignten's `grunt-spritesmith` plugin, but 
+ * with support for a multiple, and pixel doubled, spritesheets.
+ * https://github.com/Ensighten/grunt-spritesmith
+ *
  * Copyright (c) 2013 Nicholas Stephan
  * Licensed under the MIT license.
  */
 
 'use strict';
 
-var spritesmith = require('spritesmith'),
-		_ = require('underscore'),
-		fs = require('fs'),
-		path = require('path'),
-		url = require('url2');
-
-
+var spritesmith = require('spritesmith');
+var _ = require('underscore');
+var fs = require('fs');
+var path = require('path');
+var Promise = require('node-promise').Promise;
+var all = require('node-promise').all;
+var mustache = require('mustache');
 
 module.exports = function(grunt) {
 
-	// Please see the Grunt documentation for more information regarding task
-	// creation: http://gruntjs.com/creating-tasks
+	// Create an image from `srcFiles`, with name `destImage`, and pass
+	// coordinates to callback.
+	function mkSprite(srcFiles, destImage, callback) {
+		spritesmith({
+			'src': srcFiles,
+			'exportOpts': {
+				format: 'png'
+			}
+		}, function(err, result) {
+			// If an error occurred, callback with it
+			if (err) {
+				grunt.fatal(err);
+				return;
+			}
 
-	grunt.registerMultiTask('spritesheet', 'Your task description goes here.', function() {
+			// Otherwise, write out the result to destImg
+			var destDir = path.dirname(destImage);
+			grunt.file.mkdir(destDir);
+			fs.writeFileSync(destImage, result.image, 'binary');
 
-		// Merge task-specific and/or target-specific options with these defaults.
-		var options = this.options({
-			
+			grunt.log.writeln(destImage, 'created.');
+
+			callback(result.coordinates);
+		});
+	}
+
+	// Create a CSS file out of a coords object and a mustache template.
+	function mkCSS(coords, template) {
+		return mustache.render(template, coords);
+	}
+
+	grunt.registerMultiTask('spritesheet', '@2x your spritesheets.', function() {
+
+		var data = this.data;
+		var sprites = data.sprite ? {'icon':data.sprite} : data.sprites;
+		var sheet = data.sheet;
+		var template = fs.readFileSync(__dirname + '/template.mustache', 'utf8');
+
+		// Verify all properties are here
+		if (!sprites || !sheet) {
+			return grunt.fatal("grunt.spritesheet requires a sprites and sheet property");
+		}
+
+		// async
+		var done = this.async();
+
+		// each sprite adds a promise to promises, then all
+		// is used to see when all sprites have been created
+		var promises = [];
+
+		// coordinate data fed into the mustache template
+		var coords = {std: [], dbl: []};
+
+		// build sprites
+		_.each(sprites, function(files, sprite) {
+			// get files
+			var files = grunt.file.expand(sprites[sprite]);
+			var std = _.filter(files, function(file) { return file.indexOf("@2x") === -1; });
+			var dbl = _.filter(files, function(file) { return file.indexOf("@2x") !== -1; });
+
+			// discern the prefix from the filename (for now)
+			var prefix = path.basename(sprite, '.png');
+
+			// if there are standard res imgs, create sprite
+			if(std.length) {
+				var stdPromise = new Promise();
+				promises.push(stdPromise);
+
+				var url = path.relative(path.dirname(sheet), path.dirname(sprite)) + '/' + path.basename(sprite);
+
+				mkSprite(std, sprite, function(coordinates) {
+
+					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
+						var name = path.basename(file, '.png');
+						name = prefix + "-" + name;
+
+						file = coordinates[file];
+
+						coords.std.push({
+							name: name,
+							x: file.x,
+							y: file.y,
+							width: file.width,
+							height: file.height,
+							sprite: url
+						});
+					});
+
+					stdPromise.resolve();
+				});
+			}
+
+			// if there are double size imgs, determined by @2x in the filename
+			if(dbl.length) {
+				var dblPromise = new Promise();
+				promises.push(dblPromise);
+				
+				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, '.png') + "@2x.png";
+				var dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
+
+				mkSprite(dbl, dblSprite, function(coordinates) {
+
+					Object.getOwnPropertyNames(coordinates).forEach(function (file) {
+						var name = path.basename(file, '@2x.png');
+						name = prefix + "-" + name;
+						
+						file = coordinates[file];
+
+						coords.dbl.push({
+							name: name,
+							x: file.x,
+							y: file.y,
+							width: file.width,
+							height: file.height,
+							sprite: dblUrl
+						});
+					});
+
+					dblPromise.resolve();
+				});
+			}
 		});
 
-		grunt.log.writeln("Building SpriteSheets...");
+		all.apply(null, promises).then(function() {
 
+			var css = mkCSS(coords, template)
+			var sheetDir = path.dirname(sheet);
+			
+			grunt.file.mkdir(sheetDir);
+			fs.writeFileSync(sheet, css, 'utf8');
 
-		
+			grunt.log.writeln(JSON.stringify(coords));
 
-		// // Iterate over all specified file groups.
-		// this.files.forEach(function(f) {
-		// 	// Concat specified files.
-		// 	var src = f.src.filter(function(filepath) {
-		// 		// Warn on and remove invalid source files (if nonull was set).
-		// 		if (!grunt.file.exists(filepath)) {
-		// 			grunt.log.warn('Source file "' + filepath + '" not found.');
-		// 			return false;
-		// 		} else {
-		// 			return true;
-		// 		}
-		// 	}).map(function(filepath) {
-		// 		// Read file source.
-		// 		return grunt.file.read(filepath);
-		// 	}).join(grunt.util.normalizelf(options.separator));
+			grunt.log.writeln(sheet, 'created.')
+			done();
+		});
 
-		// 	// Handle options.
-		// 	src += options.punctuation;
-
-		// 	// Write the destination file.
-		// 	grunt.file.write(f.dest, src);
-
-		// 	// Print a success message.
-		// 	grunt.log.writeln('File "' + f.dest + '" created.');
-		// });
 	});
 
 };
