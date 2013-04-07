@@ -1,6 +1,7 @@
 # grunt-spritesheet
 
-> Generate a CSS spritesheet.
+Generate a CSS sprite sheet out of individual PNGs with support for multiple sprites per CSS file. Any png with an `@2x` suffix is dropped into an alternate retina display sprite and handled accordingly in the CSS.
+
 
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
@@ -45,9 +46,6 @@ A few ideas for future development:
 - Big time CSS optimization.
 - Custom prefixes rather than using filenames. 
 - Custom templates.
-- Automatic state (hover, active) generation based on sprite name alternate Gruntfile syntax.
+- Automatic state (hover, active) for <a> and <button> tags generation based on sprite name or using an alternate Gruntfile syntax.
 - Option to build output CSS with grunt-contrib-cssmin. 
 
-
-## Release History
-_(Nothing yet)_
