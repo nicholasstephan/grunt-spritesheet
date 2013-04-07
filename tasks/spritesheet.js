@@ -19,6 +19,7 @@ var path = require('path');
 var Promise = require('node-promise').Promise;
 var all = require('node-promise').all;
 var mustache = require('mustache');
+var im = require('imagemagick');
 
 module.exports = function(grunt) {
 
@@ -124,23 +125,35 @@ module.exports = function(grunt) {
 
 				mkSprite(dbl, dblSprite, function(coordinates) {
 
-					Object.getOwnPropertyNames(coordinates).forEach(function (file) {
-						var name = path.basename(file, '@2x.png');
-						name = prefix + "-" + name;
-						
-						file = coordinates[file];
+					grunt.log.writeln('looking for', dblSprite);
 
-						coords.dbl.push({
-							name: name,
-							x: file.x,
-							y: file.y,
-							width: file.width / 2,
-							height: file.height / 2,
-							sprite: dblUrl
+					im.identify(dblSprite, function (err, features) {
+						if(err) {
+							grunt.fatal(err);
+						}
+
+						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
+							var name = path.basename(file, '@2x.png');
+							name = prefix + "-" + name;
+							
+							file = coordinates[file];
+
+							coords.dbl.push({
+								name: name,
+								x: file.x,
+								y: file.y,
+								width: file.width / 2,
+								height: file.height / 2,
+								sprite: dblUrl,
+								spriteWidth: features.width,
+								spriteHeight: features.height
+							});
 						});
+
+						dblPromise.resolve();
 					});
 
-					dblPromise.resolve();
+					
 				});
 			}
 		});
