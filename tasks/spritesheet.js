@@ -134,8 +134,8 @@ module.exports = function(grunt) {
 							name: name,
 							x: file.x,
 							y: file.y,
-							width: file.width,
-							height: file.height,
+							width: file.width / 2,
+							height: file.height / 2,
 							sprite: dblUrl
 						});
 					});
