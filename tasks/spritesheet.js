@@ -125,8 +125,6 @@ module.exports = function(grunt) {
 
 				mkSprite(dbl, dblSprite, function(coordinates) {
 
-					grunt.log.writeln('looking for', dblSprite);
-
 					im.identify(dblSprite, function (err, features) {
 						if(err) {
 							grunt.fatal(err);
