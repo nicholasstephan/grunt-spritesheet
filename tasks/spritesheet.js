@@ -138,8 +138,8 @@ module.exports = function(grunt) {
 
 							coords.dbl.push({
 								name: name,
-								x: file.x,
-								y: file.y,
+								x: file.x / 2,
+								y: file.y / 2,
 								width: file.width / 2,
 								height: file.height / 2,
 								sprite: dblUrl,
