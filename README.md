@@ -44,7 +44,35 @@ grunt.initConfig({
 
 Templates are parsed using mustache. If no template url is given, the default template is rendered.
 
-```css
+Templates are given two lists: `std` and `dbl` representing standard and pixel doubled (retina) graphics. Each item contains:
+
+`sprite`
+Spritesheet url
+
+`spriteWidth`
+Width of the spritesheet as a whole
+
+`spriteHeight`
+Height of the spritesheet as a whole
+
+`name`
+Name of the sprite
+
+`width` 
+Width of the sprite
+
+`height`
+Height of the sprite
+
+`x`
+X coordinates of the sprite in the spritesheet
+
+`y`
+Y coordinates of the sprite in the spritesheet
+
+
+
+```
 {{#std}}
 .{{&name}} {
   background-image: url({{&sprite}});
@@ -75,13 +103,15 @@ only screen and (                min-resolution: 2dppx) {
 }
 ```
 
+
+
 ## Contributing
 A few ideas for future development:
 
-- General code cleanup.
-- Unit tests.
-- Big time CSS optimization.
-- Base64 sprite embedding in stylesheet
-- Custom prefixes rather than using filenames. 
-- Option to build output CSS with grunt-contrib-cssmin. 
+[ ] General code cleanup.
+[ ] Unit tests.
+[ ] Big time CSS optimization.
+[ ] Base64 sprite embedding in stylesheet
+[ ] Custom prefixes rather than using filenames. 
+[ ] Option to build output CSS with grunt-contrib-cssmin. 
 
