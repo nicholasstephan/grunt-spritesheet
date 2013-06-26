@@ -59,7 +59,8 @@ module.exports = function(grunt) {
 		var data = this.data;
 		var sprites = data.sprite ? {'icon':data.sprite} : data.sprites;
 		var sheet = data.sheet;
-		var template = fs.readFileSync(__dirname + '/template.mustache', 'utf8');
+		var templateUrl = data.templateUrl || __dirname + '/template.mustache';
+		var template = fs.readFileSync(templateUrl, 'utf8');
 
 		// Verify all properties are here
 		if (!sprites || !sheet) {

@@ -1,6 +1,6 @@
 # grunt-spritesheet
 
-Generate a CSS sprite sheet out of individual PNGs with support for multiple sprites per CSS file. Any png with an `@2x` suffix is dropped into an alternate retina display sprite and handled accordingly in the CSS.
+Generate a CSS sprite sheet out of individual PNGs with support for multiple sprites per CSS file. Any png with an `@2x` suffix is dropped into an alternate retina display sprite and handled accordingly in the CSS template.
 
 
 ## Getting Started
@@ -33,9 +33,46 @@ grunt.initConfig({
       ...
     },
     // The destination for the build stylesheet
-    sheet: "stylesheet.css"
+    sheet: "stylesheet.css",
+    // A mustache template used to render your sprites in a css file. (Optional)
+    tempateUrl: "path/to/template.mustache"
   }
 })
+```
+
+### Mustache Templates
+
+Templates are parsed using mustache. If no template url is given, the default template is rendered.
+
+```css
+{{#std}}
+.{{&name}} {
+  background-image: url({{&sprite}});
+  width: {{width}}px;
+  height: {{height}}px;
+  background-position: -{{x}}px -{{y}}px;
+}
+{{/std}}
+
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   -moz-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (   -ms-min-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 192dpi),
+only screen and (                min-resolution: 2dppx) { 
+  {{#dbl}}
+  .{{&name}} {
+    background-image: url({{&sprite}});
+    width: {{width}}px;
+    height: {{height}}px;
+    background-position: -{{x}}px -{{y}}px;
+    background-size: {{spriteWidth}}px {{spriteHeight}}px;
+  }
+  {{/dbl}}
+}
 ```
 
 ## Contributing
@@ -44,8 +81,7 @@ A few ideas for future development:
 - General code cleanup.
 - Unit tests.
 - Big time CSS optimization.
+- Base64 sprite embedding in stylesheet
 - Custom prefixes rather than using filenames. 
-- Custom templates.
-- Automatic state (hover, active) for <a> and <button> tags generation based on sprite name or using an alternate Gruntfile syntax.
 - Option to build output CSS with grunt-contrib-cssmin. 
 

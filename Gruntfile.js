@@ -36,7 +36,8 @@ module.exports = function(grunt) {
           'test/tmp/img/hover.png': ['test/example_pngs/*.png'],
           'test/tmp/img/active.png': ['test/example_pngs/*.png']
         },
-        sheet: 'test/tmp/css/sheet.css'
+        sheet: 'test/tmp/css/sheet.css',
+        templateUrl: 'test/example_template.mustache'
       },
     },
 
