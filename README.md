@@ -46,28 +46,28 @@ Templates are parsed using mustache. If no template url is given, the default te
 
 Templates are given two lists: `std` and `dbl` representing standard and pixel doubled (retina) graphics. Each item contains:
 
-`sprite`
+- `sprite`
 Spritesheet url
 
-`spriteWidth`
+- `spriteWidth`
 Width of the spritesheet as a whole
 
-`spriteHeight`
+- `spriteHeight`
 Height of the spritesheet as a whole
 
-`name`
+- `name`
 Name of the sprite
 
-`width` 
+- `width` 
 Width of the sprite
 
-`height`
+- `height`
 Height of the sprite
 
-`x`
+- `x`
 X coordinates of the sprite in the spritesheet
 
-`y`
+- `y`
 Y coordinates of the sprite in the spritesheet
 
 
@@ -108,10 +108,10 @@ only screen and (                min-resolution: 2dppx) {
 ## Contributing
 A few ideas for future development:
 
-[ ] General code cleanup.
-[ ] Unit tests.
-[ ] Big time CSS optimization.
-[ ] Base64 sprite embedding in stylesheet
-[ ] Custom prefixes rather than using filenames. 
-[ ] Option to build output CSS with grunt-contrib-cssmin. 
+- General code cleanup.
+- Unit tests.
+- Big time CSS optimization.
+- Base64 sprite embedding in stylesheet
+- Custom prefixes rather than using filenames. 
+- Option to build output CSS with grunt-contrib-cssmin. 
 
