@@ -29,7 +29,7 @@ module.exports = function(grunt) {
 		spritesmith({
 			'src': srcFiles,
 			'exportOpts': {
-				format: 'png'
+				'format': 'png'
 			}
 		}, function(err, result) {
 			// If an error occurred, callback with it
@@ -49,15 +49,10 @@ module.exports = function(grunt) {
 		});
 	}
 
-	// Create a CSS file out of a coords object and a mustache template.
-	function mkCSS(coords, template) {
-		return mustache.render(template, coords);
-	}
-
 	grunt.registerMultiTask('spritesheet', '@2x your spritesheets.', function() {
 
 		var data = this.data;
-		var sprites = data.sprite ? {'icon':data.sprite} : data.sprites;
+		var sprites = data.sprites;
 		var sheet = data.sheet;
 		var templateUrl = data.templateUrl || __dirname + '/template.mustache';
 		var template = fs.readFileSync(templateUrl, 'utf8');
@@ -159,7 +154,7 @@ module.exports = function(grunt) {
 
 		all.apply(null, promises).then(function() {
 
-			var css = mkCSS(coords, template)
+			var css = mustache.render(template, coords);
 			var sheetDir = path.dirname(sheet);
 			
 			grunt.file.mkdir(sheetDir);
