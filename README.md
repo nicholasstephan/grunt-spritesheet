@@ -35,7 +35,7 @@ grunt.initConfig({
     // The destination for the build stylesheet
     sheet: "stylesheet.css",
     // A mustache template used to render your sprites in a css file. (Optional)
-    tempateUrl: "path/to/template.mustache"
+    templateUrl: "path/to/template.mustache"
   }
 })
 ```
