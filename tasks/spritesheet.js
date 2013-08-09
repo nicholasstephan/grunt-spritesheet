@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 
 		_.extend(options, spritesmithDefaults);
 
-		grunt.verbose.writeln('Options passed to Spritesmth:', options);
+		grunt.verbose.writeln('Options passed to Spritesmth:', JSON.stringify(options));
 
 		spritesmith(options, function(err, result) {
 			// If an error occurred, callback with it
