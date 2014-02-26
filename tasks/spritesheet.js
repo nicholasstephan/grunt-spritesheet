@@ -25,27 +25,29 @@ module.exports = function(grunt) {
 
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
-	function mkSprite(srcFiles, destImage, callback) {
-		spritesmith({
-			'src': srcFiles,
-			'exportOpts': {
-				'format': 'png'
-			}
-		}, function(err, result) {
-			// If an error occurred, callback with it
-			if (err) {
-				grunt.fatal(err);
-				return;
-			}
+	function mkSprite(srcFiles, destImage, options, callback) {
+    options ||= {}
+		spritesmith(_.extend({
+      'src': srcFiles,
+   			'exportOpts': {
+   				'format': 'png'
+   			}
+   		}, options),
+      function(err, result) {
+			  // If an error occurred, callback with it
+        if (err) {
+     				grunt.fatal(err);
+     				return;
+     			}
 
-			// Otherwise, write out the result to destImg
-			var destDir = path.dirname(destImage);
-			grunt.file.mkdir(destDir);
-			fs.writeFileSync(destImage, result.image, 'binary');
+     			// Otherwise, write out the result to destImg
+     			var destDir = path.dirname(destImage);
+     			grunt.file.mkdir(destDir);
+     			fs.writeFileSync(destImage, result.image, 'binary');
 
-			grunt.log.writeln(destImage, 'created.');
+     			grunt.log.writeln(destImage, 'created.');
 
-			callback(result.coordinates);
+     			callback(result.coordinates);
 		});
 	}
 
@@ -89,7 +91,7 @@ module.exports = function(grunt) {
 
 				var url = path.relative(path.dirname(sheet), path.dirname(sprite)) + '/' + path.basename(sprite);
 
-				mkSprite(std, sprite, function(coordinates) {
+				mkSprite(std, sprite, data, function(coordinates) {
 
 					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
 						var name = path.basename(file, '.png');
@@ -119,7 +121,7 @@ module.exports = function(grunt) {
 				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, '.png') + "@2x.png";
 				var dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
 
-				mkSprite(dbl, dblSprite, function(coordinates) {
+				mkSprite(dbl, dblSprite, data, function(coordinates) {
 
 					im.identify(dblSprite, function (err, features) {
 						if(err) {
