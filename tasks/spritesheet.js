@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
 	function mkSprite(srcFiles, destImage, options, callback) {
-    options ||= {}
+    options = options || {};
 		spritesmith(_.extend({
       'src': srcFiles,
    			'exportOpts': {
