@@ -25,7 +25,8 @@ module.exports = function(grunt) {
 
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
-	function mkSprite(srcFiles, destImage, callback, options) {
+	function mkSprite(srcFiles, destImage, options, callback) {
+
 		var spritesmithDefaults = {
 			'src': srcFiles,
 			'exportOpts': {
@@ -33,7 +34,7 @@ module.exports = function(grunt) {
 			}
 		};
 
-		_.extend(options, spritesmithDefaults);
+		options = _.extend(spritesmithDefaults, options);
 
 		grunt.verbose.writeln('Options passed to Spritesmth:', JSON.stringify(options));
 
@@ -96,7 +97,7 @@ module.exports = function(grunt) {
 
 				var url = path.relative(path.dirname(sheet), path.dirname(sprite)) + '/' + path.basename(sprite);
 
-				mkSprite(std, sprite, function(coordinates) {
+				mkSprite(std, sprite, spritesmithOptions, function(coordinates) {
 
 					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
 						var name = path.basename(file, '.png');
@@ -115,7 +116,7 @@ module.exports = function(grunt) {
 					});
 
 					stdPromise.resolve();
-				}, spritesmithOptions);
+				});
 			}
 
 			// if there are double size imgs, determined by @2x in the filename
@@ -131,7 +132,7 @@ module.exports = function(grunt) {
 					spritesmithOptions.padding *= 2;
 				}
 
-				mkSprite(dbl, dblSprite, function(coordinates) {
+				mkSprite(dbl, dblSprite, spritesmithOptions, function(coordinates) {
 
 					im.identify(dblSprite, function (err, features) {
 						if(err) {
@@ -159,7 +160,7 @@ module.exports = function(grunt) {
 						dblPromise.resolve();
 					});
 
-				}, spritesmithOptions);
+				});
 			}
 		});
 
