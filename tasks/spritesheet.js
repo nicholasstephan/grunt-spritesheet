@@ -26,15 +26,8 @@ module.exports = function(grunt) {
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
 	function mkSprite(srcFiles, destImage, options, callback) {
-
-		var spritesmithDefaults = {
-			'src': srcFiles,
-			'exportOpts': {
-				'format': 'png'
-			}
-		};
-
-		options = _.extend(spritesmithDefaults, options);
+		
+		options.src = srcFiles,
 
 		grunt.verbose.writeln('Options passed to Spritesmth:', JSON.stringify(options));
 
@@ -65,6 +58,7 @@ module.exports = function(grunt) {
 		var template = fs.readFileSync(templateUrl, 'utf8');
 		var spritesmithOptions = data.spritesmithOptions || {};
 
+
 		// Verify all properties are here
 		if (!sprites || !sheet) {
 			return grunt.fatal("grunt.spritesheet requires a sprites and sheet property");
@@ -87,8 +81,16 @@ module.exports = function(grunt) {
 			var std = _.filter(files, function(file) { return file.indexOf("@2x") === -1; });
 			var dbl = _.filter(files, function(file) { return file.indexOf("@2x") !== -1; });
 
+
 			// discern the prefix from the filename (for now)
-			var prefix = path.basename(sprite, '.png');
+			var ext = path.extname(sprite).slice(1);
+			var prefix = path.basename(sprite, ext);
+
+			var options = _.extend({
+					'exportOpts': {
+						'format': ext
+					}
+				}, spritesmithOptions);
 
 			// if there are standard res imgs, create sprite
 			if(std.length) {
@@ -97,10 +99,10 @@ module.exports = function(grunt) {
 
 				var url = path.relative(path.dirname(sheet), path.dirname(sprite)) + '/' + path.basename(sprite);
 
-				mkSprite(std, sprite, spritesmithOptions, function(coordinates) {
+				mkSprite(std, sprite, options, function(coordinates) {
 
 					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
-						var name = path.basename(file, '.png');
+						var name = path.basename(file, ext);
 						name = prefix + "-" + name;
 
 						file = coordinates[file];
@@ -124,15 +126,15 @@ module.exports = function(grunt) {
 				var dblPromise = new Promise();
 				promises.push(dblPromise);
 				
-				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, '.png') + "@2x.png";
+				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, ext) + "@2x." + ext;
 				var dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
 
 				// Double padding if it is set
-				if (typeof spritesmithOptions.padding === 'number') {
-					spritesmithOptions.padding *= 2;
+				if (typeof options.padding === 'number') {
+					options.padding *= 2;
 				}
 
-				mkSprite(dbl, dblSprite, spritesmithOptions, function(coordinates) {
+				mkSprite(dbl, dblSprite, options, function(coordinates) {
 
 					im.identify(dblSprite, function (err, features) {
 						if(err) {
@@ -140,7 +142,7 @@ module.exports = function(grunt) {
 						}
 
 						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
-							var name = path.basename(file, '@2x.png');
+							var name = path.basename(file, '@2x' + path.extname(sprite));
 							name = prefix + "-" + name;
 							
 							file = coordinates[file];
