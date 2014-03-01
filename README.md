@@ -27,16 +27,24 @@ In your project's Gruntfile, add a section named `spritesheet` to the data objec
 grunt.initConfig({
   spritesheet: {
     generate: {
+      
       // An array of filename / source images array pairs. The basename of the sprite file
       // is also prefixed to the CSS classes.
       sprites: {
         "filename.png": ['/images/**/*.png'],
         ...
       },
+      
       // The destination for the build stylesheet
       sheet: "stylesheet.css",
+      
       // A mustache template used to render your sprites in a css file. (Optional)
-      templateUrl: "path/to/template.mustache"
+      templateUrl: "path/to/template.mustache",
+      
+      // Optionally pass additional options to spritesmith
+      spritesmithOptions: {
+
+      }
     }
   }
 })
