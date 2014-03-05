@@ -1,7 +1,7 @@
 {
   "name": "grunt-spritesheet",
   "description": "@2x your spritesheets.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/nicholasstephan/grunt-spritesheet",
   "author": {
     "name": "Nicholas Stephan",
