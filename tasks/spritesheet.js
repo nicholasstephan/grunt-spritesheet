@@ -83,12 +83,12 @@ module.exports = function(grunt) {
 
 
 			// discern the prefix from the filename (for now)
-			var ext = path.extname(sprite).slice(1);
+			var ext = path.extname(sprite);
 			var prefix = path.basename(sprite, ext);
 
 			var options = _.extend({
 					'exportOpts': {
-						'format': ext
+						'format': ext.slice(1)
 					}
 				}, spritesmithOptions);
 
@@ -126,7 +126,7 @@ module.exports = function(grunt) {
 				var dblPromise = new Promise();
 				promises.push(dblPromise);
 				
-				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, ext) + "@2x." + ext;
+				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, ext) + "@2x" + ext;
 				var dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
 
 				// Double padding if it is set
@@ -142,7 +142,7 @@ module.exports = function(grunt) {
 						}
 
 						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
-							var name = path.basename(file, '@2x' + path.extname(sprite));
+							var name = path.basename(file, '@2x' + ext);
 							name = prefix + "-" + name;
 							
 							file = coordinates[file];
