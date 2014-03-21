@@ -143,7 +143,7 @@ module.exports = function(grunt) {
 
 						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
 							var name = path.basename(file, '@2x' + ext);
-							name = prefix + "-" + name;
+							name = ('string' === typeof data.prefix ? data.prefix : prefix + '-') + name;
 
 							file = coordinates[file];
 
