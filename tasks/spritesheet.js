@@ -2,7 +2,7 @@
  * grunt-spritesheet
  * https://github.com/nicholasstephan/grunt-spritesheet
  *
- * Mostly just a fork of Ensignten's `grunt-spritesmith` plugin, but 
+ * Mostly just a fork of Ensignten's `grunt-spritesmith` plugin, but
  * with support for a multiple, and pixel doubled, spritesheets.
  * https://github.com/Ensighten/grunt-spritesmith
  *
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
 	function mkSprite(srcFiles, destImage, options, callback) {
-		
+
 		options.src = srcFiles,
 
 		grunt.verbose.writeln('Options passed to Spritesmth:', JSON.stringify(options));
@@ -103,7 +103,7 @@ module.exports = function(grunt) {
 
 					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
 						var name = path.basename(file, ext);
-						name = prefix + "-" + name;
+						name = ('string' === typeof data.prefix ? data.prefix : prefix + '-') + name;
 
 						file = coordinates[file];
 
@@ -125,7 +125,7 @@ module.exports = function(grunt) {
 			if(dbl.length) {
 				var dblPromise = new Promise();
 				promises.push(dblPromise);
-				
+
 				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, ext) + "@2x" + ext;
 				var dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
 
@@ -143,8 +143,8 @@ module.exports = function(grunt) {
 
 						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
 							var name = path.basename(file, '@2x' + ext);
-							name = prefix + "-" + name;
-							
+							name = ('string' === typeof data.prefix ? data.prefix : prefix + '-') + name;
+
 							file = coordinates[file];
 
 							coords.dbl.push({
@@ -170,7 +170,7 @@ module.exports = function(grunt) {
 
 			var css = mustache.render(template, coords);
 			var sheetDir = path.dirname(sheet);
-			
+
 			grunt.file.mkdir(sheetDir);
 			fs.writeFileSync(sheet, css, 'utf8');
 
