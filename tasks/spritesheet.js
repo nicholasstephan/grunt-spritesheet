@@ -2,7 +2,7 @@
  * grunt-spritesheet
  * https://github.com/nicholasstephan/grunt-spritesheet
  *
- * Mostly just a fork of Ensignten's `grunt-spritesmith` plugin, but 
+ * Mostly just a fork of Ensignten's `grunt-spritesmith` plugin, but
  * with support for a multiple, and pixel doubled, spritesheets.
  * https://github.com/Ensighten/grunt-spritesmith
  *
@@ -26,8 +26,8 @@ module.exports = function(grunt) {
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
 	function mkSprite(srcFiles, destImage, options, callback) {
-		
-		options.src = srcFiles,
+
+		options.src = srcFiles;
 
 		grunt.verbose.writeln('Options passed to Spritesmth:', JSON.stringify(options));
 
@@ -51,13 +51,16 @@ module.exports = function(grunt) {
 
 	grunt.registerMultiTask('spritesheet', '@2x your spritesheets.', function() {
 
-		var data = this.data;
-		var sprites = data.sprites;
-		var sheet = data.sheet;
-		var templateUrl = data.templateUrl || __dirname + '/template.mustache';
-		var template = fs.readFileSync(templateUrl, 'utf8');
-		var spritesmithOptions = data.spritesmithOptions || {};
+		var data = this.data,
+			sprites = data.sprites,
+			sheet = data.sheet,
+			templateUrl = data.templateUrl || __dirname + '/template.mustache',
+			template = fs.readFileSync(templateUrl, 'utf8'),
+			spritesmithOptions = data.spritesmithOptions || {},
 
+			// each sprite adds a promise to promises, then all
+			// is used to see when all sprites have been created
+			promises = [];
 
 		// Verify all properties are here
 		if (!sprites || !sheet) {
@@ -65,69 +68,76 @@ module.exports = function(grunt) {
 		}
 
 		// async
-		var done = this.async();
-
-		// each sprite adds a promise to promises, then all
-		// is used to see when all sprites have been created
-		var promises = [];
-
+		var done = this.async(),
 		// coordinate data fed into the mustache template
-		var coords = {std: [], dbl: []};
+			coords = {
+				std: [],
+				dbl: [],
+				targets: [],
+				data:this.data,
+				config:grunt.config.get()
+			};
 
 		// build sprites
-		_.each(sprites, function(files, sprite) {
+		_.each(sprites, function(afiles, sprite) {
 			// get files
-			var files = grunt.file.expand(sprites[sprite]);
-			var std = _.filter(files, function(file) { return file.indexOf("@2x") === -1; });
-			var dbl = _.filter(files, function(file) { return file.indexOf("@2x") !== -1; });
-
-
-			// discern the prefix from the filename (for now)
-			var ext = path.extname(sprite);
-			var prefix = path.basename(sprite, ext);
-
-			var options = _.extend({
-					'exportOpts': {
-						'format': ext.slice(1)
-					}
-				}, spritesmithOptions);
+			var files = grunt.file.expand(sprites[sprite]),
+				std = _.filter(files, function(file) { return file.indexOf("@2x") === -1; }),
+				dbl = _.filter(files, function(file) { return file.indexOf("@2x") !== -1; }),
+				target = {
+					out : sprite,
+					std : [],
+					dbl : []
+				},
+				ext = path.extname(sprite), // discern the prefix from the filename (for now)
+				prefix = path.basename(sprite, ext),
+				options = _.extend({
+						'exportOpts': {
+							'format': ext.slice(1)
+						}
+					}, spritesmithOptions);
 
 			// if there are standard res imgs, create sprite
 			if(std.length) {
-				var stdPromise = new Promise();
-				promises.push(stdPromise);
 
-				var url = path.relative(path.dirname(sheet), path.dirname(sprite)) + '/' + path.basename(sprite);
+				var stdPromise = new Promise(),
+					url = path.relative(path.dirname(sheet), path.dirname(sprite)) + '/' + path.basename(sprite);
+
+				promises.push(stdPromise);
 
 				mkSprite(std, sprite, options, function(coordinates) {
 
 					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
-						var name = path.basename(file, ext);
+						var name = path.basename(file, ext),
+							std_data = {};
+
 						name = prefix + "-" + name;
-
 						file = coordinates[file];
-
-						coords.std.push({
+						std_data = {
 							name: name,
 							x: file.x,
 							y: file.y,
 							width: file.width,
 							height: file.height,
 							sprite: url
-						});
+						};
+						coords.std.push(std_data);
+						target.std.push(std_data);
 					});
 
 					stdPromise.resolve();
+
 				});
 			}
 
 			// if there are double size imgs, determined by @2x in the filename
 			if(dbl.length) {
-				var dblPromise = new Promise();
+
+				var dblPromise = new Promise(),
+					dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, ext) + "@2x" + ext,
+					dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
+
 				promises.push(dblPromise);
-				
-				var dblSprite = path.dirname(sprite) + "/" + path.basename(sprite, ext) + "@2x" + ext;
-				var dblUrl = path.relative(path.dirname(sheet), path.dirname(dblSprite)) + '/' + path.basename(dblSprite);
 
 				// Double padding if it is set
 				if (typeof options.padding === 'number') {
@@ -142,12 +152,13 @@ module.exports = function(grunt) {
 						}
 
 						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
-							var name = path.basename(file, '@2x' + ext);
-							name = prefix + "-" + name;
-							
-							file = coordinates[file];
 
-							coords.dbl.push({
+							var name = path.basename(file, '@2x' + ext),
+								dbl_data = {};
+
+							name = prefix + "-" + name;
+							file = coordinates[file];
+							dbl_data = {
 								name: name,
 								x: file.x / 2,
 								y: file.y / 2,
@@ -156,25 +167,29 @@ module.exports = function(grunt) {
 								sprite: dblUrl,
 								spriteWidth: features.width / 2,
 								spriteHeight: features.height / 2
-							});
+							};
+							coords.dbl.push(dbl_data);
+							target.dbl.push(dbl_data);
 						});
 
 						dblPromise.resolve();
+
 					});
 
 				});
 			}
+			coords.targets.push(target);
 		});
 
 		all.apply(null, promises).then(function() {
 
-			var css = mustache.render(template, coords);
-			var sheetDir = path.dirname(sheet);
-			
+			var css = mustache.render(template, coords),
+				sheetDir = path.dirname(sheet);
+
 			grunt.file.mkdir(sheetDir);
 			fs.writeFileSync(sheet, css, 'utf8');
 
-			grunt.log.writeln(sheet, 'created.')
+			grunt.log.writeln(sheet, 'created.');
 			done();
 		});
 
