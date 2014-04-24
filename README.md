@@ -21,26 +21,26 @@ grunt.loadNpmTasks('grunt-spritesheet');
 ## The "spritesheet" task
 
 ### Overview
-In your project's Gruntfile, add a section named `spritesheet` to the data object passed into `grunt.initConfig()`. 
+In your project's Gruntfile, add a section named `spritesheet` to the data object passed into `grunt.initConfig()`.
 
 ```js
 grunt.initConfig({
   spritesheet: {
     generate: {
-      
+
       // An array of filename / source images array pairs. The basename of the sprite file
       // is also prefixed to the CSS classes.
       sprites: {
         "filename.png": ['/images/**/*.png'],
         ...
       },
-      
+
       // The destination for the build stylesheet
       sheet: "stylesheet.css",
-      
+
       // A mustache template used to render your sprites in a css file. (Optional)
       templateUrl: "path/to/template.mustache",
-      
+
       // Optionally pass additional options to spritesmith
       spritesmithOptions: {
 
@@ -68,7 +68,7 @@ Height of the spritesheet as a whole
 - `name`
 Name of the sprite
 
-- `width` 
+- `width`
 Width of the sprite
 
 - `height`
@@ -80,6 +80,31 @@ X coordinates of the sprite in the spritesheet
 - `y`
 Y coordinates of the sprite in the spritesheet
 
+- `data`
+grunt task data object
+
+- `config`
+grunt config
+
+- `targets` :
+Array with each *sprite* you have inside `sprite` config object.
+
+   ```
+   "sprites": {
+    "assets/img/sprites/foo.png": ["assets/img/sprites/foo/**/*.png"],
+    "assets/img/sprites/bar.png": ["assets/img/sprites/bar/**/*.png"]
+   }
+   ```
+
+   can be represented by:
+
+   ```
+   targets[0] = {
+      out : assets/img/sprites/foo.png,
+      std : assets/img/sprites/foo/**/*.png
+      dbl : assets/img/sprites/foo/**/*.png
+   }
+   ```
 
 
 ```
@@ -100,7 +125,7 @@ only screen and (   -ms-min-device-pixel-ratio: 2),
 only screen and (     -o-min-device-pixel-ratio: 2/1),
 only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
-only screen and (                min-resolution: 2dppx) { 
+only screen and (                min-resolution: 2dppx) {
   {{#dbl}}
   .{{&name}} {
     background-image: url({{&sprite}});
@@ -122,6 +147,6 @@ A few ideas for future development:
 - Unit tests.
 - Big time CSS optimization.
 - Base64 sprite embedding in stylesheet
-- Custom prefixes rather than using filenames. 
-- Option to build output CSS with grunt-contrib-cssmin. 
+- Custom prefixes rather than using filenames.
+- Option to build output CSS with grunt-contrib-cssmin.
 
