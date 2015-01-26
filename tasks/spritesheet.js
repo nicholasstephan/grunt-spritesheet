@@ -57,6 +57,7 @@ module.exports = function(grunt) {
 		var templateUrl = data.templateUrl || __dirname + '/template.mustache';
 		var template = fs.readFileSync(templateUrl, 'utf8');
 		var spritesmithOptions = data.spritesmithOptions || {};
+		var templateOptions = data.templateOptions || {};
 
 
 		// Verify all properties are here
@@ -168,7 +169,7 @@ module.exports = function(grunt) {
 
 		all.apply(null, promises).then(function() {
 
-			var css = mustache.render(template, coords);
+			var css = mustache.render(template, _.extend(coords, templateOptions));
 			var sheetDir = path.dirname(sheet);
 			
 			grunt.file.mkdir(sheetDir);
